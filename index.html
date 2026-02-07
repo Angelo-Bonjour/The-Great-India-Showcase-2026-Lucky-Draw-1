@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>THE GREAT INDIA SHOWCASE 2026 — LUCKY DRAW</title>
+  <!-- Inline CSS -->
+  <style>
+    :root{
+      --navy:#002f61;
+      --gold:#f8dc8a; /* primary golden */
+      --gold-dark:#e6c96f; /* slightly darker shade for dimension */
+      --whiteish:#f7f9fc;
+      --shadow:0 6px 16px rgba(0,0,0,.25);
+      --shadow-soft:0 2px 8px rgba(0,0,0,.18);
+      --radius:14px;
+    }
+    @font-face{
+      font-family:'PP Fragment';
+      src: url('assets/fonts/PPFragment-Regular.woff2') format('woff2');
+      font-weight:400; font-style:normal; font-display:swap;
+    }
+    @font-face{
+      font-family:'PP Fragment';
+      src: url('assets/fonts/PPFragment-Bold.woff2') format('woff2');
+      font-weight:700; font-style:normal; font-display:swap;
+    }
+    html,body{height:100%;}
+    body{
+      margin:0; background:var(--navy); color:#fff; font-family:'PP Fragment', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      overflow-x:hidden;
+    }
+    .container{max-width:1100px; margin:0 auto; padding:18px 16px 40px; position:relative;}
+
+    /* Top Actions */
+    .top-actions{display:flex; gap:12px; align-items:center; justify-content:flex-end; margin-top:8px;}
+    .btn{background:linear-gradient(180deg,var(--gold), var(--gold-dark)); color:#000; border:0; padding:10px 14px; font-weight:700; border-radius:10px; box-shadow:var(--shadow-soft); cursor:pointer; transition:transform .08s ease, box-shadow .2s ease;}
+    .btn:active{transform:translateY(1px); box-shadow:0 1px 3px rgba(0,0,0,.25);}
+    .btn.secondary{background:linear-gradient(180deg,#e9edf6,#cfd6e6); color:#111;}
+    .icon{width:18px; height:18px; vertical-align:-3px; margin-right:6px;}
+
+    /* Header + Logo */
+    header{position:relative; text-align:center; padding-top:28px;}
+    #logoTop{position:fixed; left:22px; top:0; height:72px; width:auto; z-index:30; filter:drop-shadow(0 2px 2px rgba(0,0,0,.25));}
+    h1{margin:0; font-size: clamp(26px, 4.2vw, 46px); line-height:1.1; letter-spacing:1px; font-weight:700;}
+    h2{margin:8px 0 12px; font-size: clamp(16px, 2.6vw, 28px); font-weight:700; opacity:.95;}
+
+    /* Stage */
+    .stage{margin-top:18px; display:grid; grid-template-columns:1fr; gap:18px;}
+
+    /* Gift Box */
+    .gift{position:relative; width:100%; height:min(56vh, 520px); display:flex; align-items:flex-end; justify-content:center;}
+    .box{position:relative; width:min(820px, 96%); height:80%; background:#fff0; display:flex; align-items:flex-end; justify-content:center;}
+
+    .box-base{position:absolute; bottom:0; left:50%; transform:translateX(-50%); width:100%; height:70%; background:linear-gradient(180deg, var(--gold), var(--gold-dark)); border-radius:0 0 var(--radius) var(--radius); box-shadow:var(--shadow);}    
+
+    /* Entries area inside box */
+    .entries-area{position:absolute; left:5%; right:5%; bottom:12%; top:10%; overflow:hidden;}
+    .entry{position:absolute; min-width:120px; max-width:180px; padding:10px 12px; background:#fff; color:#111; border-radius:10px; box-shadow:0 6px 14px rgba(0,0,0,.18); font-weight:700; text-align:center; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
+
+    /* Lid (moves upward during draw) */
+    .lid{position:absolute; width:100%; height:26%; top:-2%; left:50%; transform:translate(-50%, 0);
+      background:linear-gradient(180deg, var(--gold), var(--gold-dark)); border-radius:var(--radius) var(--radius) 10px 10px; box-shadow:var(--shadow); z-index:5;
+      transition:transform .6s cubic-bezier(.2,.9,.2,1.1);
+    }
+    .lid.open{ transform:translate(-50%, -32%) rotate(-1.5deg); }
+
+    /* Bow only (no vertical ribbon) */
+    .bow{position:absolute; top:50%; left:50%; transform:translate(-50%, -60%); width:min(200px, 26%); height:min(120px, 16%); display:flex; align-items:center; justify-content:center;}
+    .knot{position:relative; width:46px; height:40px; border-radius:40px; background:radial-gradient( circle at 30% 35%, #fff8cc 0%, #f3d57b 35%, #d6b95f 70%, #a9893b 100% ); box-shadow: inset 0 3px 6px rgba(0,0,0,.25), 0 3px 8px rgba(0,0,0,.25);} 
+    .loop{position:absolute; top:50%; width:96px; height:80px; border-radius:56px 56px 56px 56px; transform-origin:center center;}
+    .loop:before{ content:""; position:absolute; inset:0; border-radius:inherit; background:radial-gradient( circle at 35% 40%, #fff7bd 0%, #f1d17b 30%, #e1c06b 55%, #c5a24e 75%, #997a31 100% ); box-shadow: inset 0 6px 12px rgba(0,0,0,.28), 0 3px 8px rgba(0,0,0,.25);}
+    .loop.left{ left:-86px; transform:translateY(-50%) rotate(-12deg);}
+    .loop.right{ right:-86px; transform:translateY(-50%) rotate(12deg);} 
+
+    /* Countdown overlay */
+    .countdown{position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,.35); z-index:50;}
+    .countdown.show{display:flex;}
+    .count-num{font-size:min(20vw, 180px); font-weight:700; text-shadow:0 10px 30px rgba(0,0,0,.45);} 
+
+    /* Winner modal */
+    .modal{position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,.55); z-index:60;}
+    .modal.show{display:flex;}
+    .modal-card{background:#fff; color:#111; border-radius:16px; min-width:min(92vw,700px); max-width:92vw; box-shadow:var(--shadow); padding:26px 24px 20px; position:relative;}
+    .modal-card .close{position:absolute; top:10px; right:12px; background:#efefef; border:0; border-radius:10px; padding:6px 10px; cursor:pointer;}
+    .winner-name{font-size: clamp(24px, 4vw, 44px); font-weight:800; text-align:center; margin:8px 0 6px;}
+    .modal-sub{font-weight:600; text-align:center; opacity:.85;}
+    .modal-footer{display:flex; justify-content:center; margin-top:16px;}
+    .logo-end{position:absolute; bottom:12px; right:12px; height:28px; opacity:.9;}
+
+    /* Drawer */
+    .drawer{position:fixed; top:0; right:0; width:min(380px, 92vw); height:100%; background:#0d3f77; color:#fff; transform:translateX(100%); transition:transform .35s ease; z-index:70; box-shadow:-8px 0 22px rgba(0,0,0,.35);} 
+    .drawer.open{transform:translateX(0);} 
+    .drawer header{padding:16px; text-align:left;}
+    .drawer h3{margin:0 0 10px; font-size:20px;}
+    .drawer .section{padding:10px 16px 16px; border-top:1px solid rgba(255,255,255,.15);}    
+    .toggle{display:flex; align-items:center; justify-content:space-between; margin:8px 0;}
+    .toggle input{width:44px; height:24px; appearance:none; background:#fff3; border-radius:14px; position:relative; outline:none; cursor:pointer;}
+    .toggle input:checked{background:#d9f7c6;}
+    .toggle input::after{content:""; position:absolute; top:3px; left:3px; width:18px; height:18px; border-radius:50%; background:#fff; transition:left .2s ease;}
+    .toggle input:checked::after{left:23px;}
+    .drawer input[type="text"], .drawer input[type="search"]{width:100%; padding:10px 12px; border:0; border-radius:10px; margin-top:6px;}
+    .drawer .btn{width:100%; margin-top:10px;}
+
+    /* Lists */
+    .list{max-height:220px; overflow:auto; background:#093665; border-radius:12px; padding:8px; margin-top:8px;}
+    .list-item{background:#0f4685; border-radius:10px; padding:10px 12px; color:#fff; margin:6px 0; display:flex; justify-content:space-between; align-items:center;}
+    .list-item button{background:#fff2; color:#fff; border:1px solid #fff3; border-radius:8px; padding:6px 10px; cursor:pointer;}
+
+    /* Past winners modal specific */
+    .winners-list{max-height:340px; overflow:auto; border:1px solid #e8e8e8; border-radius:12px; padding:8px;}
+    .winner-row{display:flex; gap:12px; padding:8px 10px; border-bottom:1px dashed #ddd; align-items:center;}
+    .winner-row:last-child{border-bottom:0;}
+
+    /* Confetti canvas */
+    #confetti{position:fixed; inset:0; pointer-events:none; z-index:55;}
+
+    /* Responsive small screens tweaks */
+    @media (max-width:640px){
+      #logoTop{height:56px;}
+      .entries-area{left:6%; right:6%;}
+      .loop{width:84px; height:70px;}
+      .knot{width:40px; height:36px;}
+    }
+  </style>
+</head>
+<body>
+  <img id="logoTop" src="assets/logo-top.png" alt="Company Logo" />
+  <div class="container">
+    <div class="top-actions">
+      <button class="btn" id="btnStart">Start Draw</button>
+      <button class="btn secondary" id="btnReset">Reset</button>
+      <button class="btn" id="btnDrawer">Menu</button>
+    </div>
+
+    <header id="pageHeader">
+      <h1 id="mainHeading">THE GREAT INDIA SHOWCASE 2026</h1>
+      <h2>LUCKY DRAW</h2>
+    </header>
+
+    <section class="stage">
+      <div class="gift">
+        <div class="box">
+          <div class="lid" id="lid">
+            <!-- Premium bow (only bow, no vertical ribbon) -->
+            <div class="bow" aria-hidden="true">
+              <div class="loop left"></div>
+              <div class="knot"></div>
+              <div class="loop right"></div>
+            </div>
+          </div>
+          <div class="box-base"></div>
+          <div class="entries-area" id="entriesArea" aria-live="polite"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Countdown Overlay -->
+  <div class="countdown" id="countdown">
+    <div class="count-num" id="countNum">3</div>
+  </div>
+
+  <!-- Winner Modal -->
+  <canvas id="confetti"></canvas>
+  <div class="modal" id="winnerModal" role="dialog" aria-modal="true" aria-labelledby="winnerTitle">
+    <div class="modal-card">
+      <button class="close" id="closeWinner">Close</button>
+      <h3 id="winnerTitle" class="modal-sub">And the winner is</h3>
+      <div class="winner-name" id="winnerName">—</div>
+      <div class="modal-footer">
+        <button class="btn" id="btnCloseWinner">OK</button>
+      </div>
+      <img class="logo-end" src="assets/logo-end.png" alt="Logo" />
+    </div>
+  </div>
+
+  <!-- Drawer -->
+  <aside class="drawer" id="drawer" aria-label="Right Drawer">
+    <header>
+      <h3>Options</h3>
+    </header>
+    <div class="section">
+      <label>Google Sheet CSV URL</label>
+      <input type="text" id="csvUrl" placeholder="Paste a publicly shared CSV link here (Google Sheets → File → Share → Publish to web → CSV)" />
+      <button class="btn" id="btnLoadCsv">Load/Refresh</button>
+    </div>
+    <div class="section">
+      <div class="toggle">
+        <span>Auto‑Refresh (10s)</span>
+        <input type="checkbox" id="autoRefreshToggle" />
+      </div>
+      <small style="opacity:.85">When enabled, the participant list is refreshed from CSV every 10 seconds. Past winners remain excluded.</small>
+    </div>
+    <div class="section">
+      <div class="toggle">
+        <span>Enable Sound (priming audio)</span>
+        <input type="checkbox" id="soundToggle" />
+      </div>
+      <small style="opacity:.85">Turn this on and click anywhere to allow the browser to play sounds during the draw.</small>
+    </div>
+    <div class="section">
+      <button class="btn" id="btnLuckyOnes">Lucky Ones</button>
+      <button class="btn" id="btnPastWinners">Past Winners</button>
+      <button class="btn secondary" id="btnExportWinners">Export Past Winners (CSV)</button>
+      <button class="btn secondary" id="btnClearAll">Reset Draw (Clear Winners)</button>
+    </div>
+  </aside>
+
+  <!-- Lucky Ones Modal -->
+  <div class="modal" id="luckyModal" role="dialog" aria-modal="true" aria-labelledby="luckyTitle">
+    <div class="modal-card">
+      <button class="close" id="closeLucky">Close</button>
+      <h3 id="luckyTitle" class="modal-sub">Lucky Ones — Select up to 3 (forced winners order)</h3>
+      <input type="search" id="luckySearch" placeholder="Search participants" />
+      <div class="list" id="luckyList"></div>
+      <div style="margin-top:10px; font-weight:700;">Selected sequence:</div>
+      <div class="list" id="luckySelected"></div>
+      <div class="modal-footer">
+        <button class="btn" id="saveLucky">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Past Winners Modal -->
+  <div class="modal" id="winnersModal" role="dialog" aria-modal="true" aria-labelledby="winnersTitle">
+    <div class="modal-card">
+      <button class="close" id="closeWinners">Close</button>
+      <h3 id="winnersTitle" class="modal-sub">Past Winners</h3>
+      <div class="winners-list" id="winnersList"></div>
+      <div class="modal-footer">
+        <button class="btn secondary" id="exportCsv2">Export CSV</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Inline JS -->
+  <script>
+    // ====== Utility & State ======
+    const qs = (sel, el=document) => el.querySelector(sel);
+    const qsa = (sel, el=document) => [...el.querySelectorAll(sel)];
+
+    const state = {
+      participants: [], // all from CSV
+      pool: [],         // eligible (participants minus past winners)
+      winners: [],      // {name, time}
+      luckyQueue: [],   // array of names (forced winners)
+      autoRefresh: false,
+      soundEnabled: false,
+      csvUrl: '',
+      timers: { refresh: null },
+      drawing: false,
+      audio: { drum:null, pop:null, clap:null },
+    };
+
+    // LocalStorage keys
+    const LS = {
+      winners:'gi_showcase_winners',
+      lucky:'gi_showcase_lucky',
+      csvUrl:'gi_showcase_csvurl',
+      auto:'gi_showcase_auto',
+      sound:'gi_showcase_sound'
+    };
+
+    // Load persisted settings
+    function loadPersisted(){
+      try{
+        state.winners = JSON.parse(localStorage.getItem(LS.winners) || '[]');
+        state.luckyQueue = JSON.parse(localStorage.getItem(LS.lucky) || '[]');
+        state.csvUrl = localStorage.getItem(LS.csvUrl) || '';
+        state.autoRefresh = localStorage.getItem(LS.auto) === '1';
+        state.soundEnabled = localStorage.getItem(LS.sound) === '1';
+      }catch{ /* noop */ }
+      qs('#csvUrl').value = state.csvUrl;
+      qs('#autoRefreshToggle').checked = state.autoRefresh;
+      qs('#soundToggle').checked = state.soundEnabled;
+    }
+
+    function persist(){
+      localStorage.setItem(LS.winners, JSON.stringify(state.winners));
+      localStorage.setItem(LS.lucky, JSON.stringify(state.luckyQueue));
+      localStorage.setItem(LS.csvUrl, state.csvUrl || '');
+      localStorage.setItem(LS.auto, state.autoRefresh ? '1' : '0');
+      localStorage.setItem(LS.sound, state.soundEnabled ? '1' : '0');
+    }
+
+    // ====== Logo alignment (exactly align top with heading) ======
+    function alignLogo(){
+      const logo = qs('#logoTop');
+      const h1 = qs('#mainHeading');
+      const rect = h1.getBoundingClientRect();
+      const top = Math.max(0, rect.top + window.scrollY);
+      logo.style.top = top + 'px';
+    }
+    window.addEventListener('resize', alignLogo);
+    window.addEventListener('load', () => {
+      alignLogo();
+      if (document.fonts && document.fonts.ready) { document.fonts.ready.then(alignLogo); }
+      setTimeout(alignLogo, 50); // safety
+      setTimeout(alignLogo, 250);
+    });
+
+    // ====== Entries rendering & shuffle ======
+    const entriesArea = qs('#entriesArea');
+    function renderPool(){
+      entriesArea.innerHTML='';
+      const area = entriesArea.getBoundingClientRect();
+      const max = Math.min(state.pool.length, 60); // cap rendering for perf
+      const items = state.pool.slice(0, max);
+      items.forEach((name, i)=>{
+        const d = document.createElement('div');
+        d.className='entry';
+        d.textContent = name;
+        entriesArea.appendChild(d);
+      });
+      randomizeEntryPositions(true);
+    }
+
+    function rand(min,max){return Math.random()*(max-min)+min}
+    function randomizeEntryPositions(initial=false){
+      const area = entriesArea.getBoundingClientRect();
+      const W = area.width, H = area.height;
+      qsa('.entry', entriesArea).forEach((el,i)=>{
+        const ew = el.offsetWidth, eh = el.offsetHeight;
+        const x = rand(0, Math.max(0, W - ew));
+        const y = rand(0, Math.max(0, H - eh));
+        const r = rand(-6, 6);
+        if (initial){
+          el.style.transform = `translate(${x}px, ${y}px) rotate(${r}deg)`;
+        } else {
+          el.style.transition = 'transform .45s ease';
+          requestAnimationFrame(()=>{
+            el.style.transform = `translate(${x}px, ${y}px) rotate(${r}deg)`;
+          });
+          setTimeout(()=>{ el.style.transition = ''; }, 450);
+        }
+      });
+    }
+
+    let shuffleTimer = null;
+    function startShuffle(){
+      randomizeEntryPositions(false);
+      shuffleTimer = setInterval(()=> randomizeEntryPositions(false), 500);
+    }
+    function stopShuffle(){
+      if (shuffleTimer){ clearInterval(shuffleTimer); shuffleTimer = null; }
+    }
+
+    // ====== CSV loading via PapaParse ======
+    function normalizeRow(row){
+      // Try common column names
+      const keys = Object.keys(row);
+      const nameKey = keys.find(k => /name/i.test(k)) || keys[0];
+      return String(row[nameKey]||'').trim();
+    }
+
+    function refreshPool(){
+      const winnersSet = new Set(state.winners.map(w=>w.name));
+      state.pool = state.participants.filter(n => n && !winnersSet.has(n));
+      renderPool();
+    }
+
+    function loadCSV(url){
+      return new Promise((resolve,reject)=>{
+        if (!url){ resolve([]); return; }
+        if (!window.Papa){
+          alert('PapaParse not loaded. Check network connectivity.');
+          reject('Papa missing');
+          return;
+        }
+        Papa.parse(url,{
+          download:true, header:true, dynamicTyping:false, skipEmptyLines:true,
+          complete: (res)=>{
+            const names = res.data.map(normalizeRow).filter(Boolean);
+            resolve(names);
+          },
+          error: (err)=> reject(err)
+        });
+      })
+    }
+
+    async function fetchParticipants(){
+      if (!state.csvUrl){ return; }
+      try{
+        const names = await loadCSV(state.csvUrl);
+        state.participants = names;
+        refreshPool();
+      }catch(e){ console.error(e); }
+    }
+
+    function setAutoRefresh(on){
+      state.autoRefresh = on; persist();
+      if (state.timers.refresh){ clearInterval(state.timers.refresh); state.timers.refresh=null; }
+      if (on){ state.timers.refresh = setInterval(fetchParticipants, 10000); }
+    }
+
+    // ====== Drawer & Modals ======
+    const drawer = qs('#drawer');
+    function openDrawer(){ drawer.classList.add('open'); }
+    function closeDrawer(){ drawer.classList.remove('open'); }
+
+    function openModal(id){ qs(id).classList.add('show'); }
+    function closeModal(id){ qs(id).classList.remove('show'); }
+
+    // ====== Sounds ======
+    function initAudio(){
+      state.audio.drum = new Audio('assets/drum.mp3');
+      state.audio.pop = new Audio('assets/pop.mp3');
+      state.audio.clap = new Audio('assets/clap.mp3');
+      state.audio.drum.loop = true;
+      state.audio.clap.loop = true;
+    }
+
+    function primeSound(){
+      // Attempt to unlock audio on user gesture
+      if (!state.soundEnabled) return;
+      try{
+        state.audio.drum.muted=true; state.audio.drum.play().then(()=>{ state.audio.drum.pause(); state.audio.drum.currentTime=0; state.audio.drum.muted=false; });
+        state.audio.pop.muted=true; state.audio.pop.play().then(()=>{ state.audio.pop.pause(); state.audio.pop.currentTime=0; state.audio.pop.muted=false; });
+        state.audio.clap.muted=true; state.audio.clap.play().then(()=>{ state.audio.clap.pause(); state.audio.clap.currentTime=0; state.audio.clap.muted=false; });
+      }catch(e){ /* ignore */ }
+    }
+
+    async function playDrum(){ if(state.soundEnabled){ try{ await state.audio.drum.play(); }catch{} } }
+    function stopDrum(){ try{ state.audio.drum.pause(); state.audio.drum.currentTime=0; }catch{} }
+    async function playPop(){ if(state.soundEnabled){ try{ await state.audio.pop.play(); }catch{} } }
+    async function playClap(){ if(state.soundEnabled){ try{ await state.audio.clap.play(); }catch{} } }
+    function stopClap(){ try{ state.audio.clap.pause(); state.audio.clap.currentTime=0; }catch{} }
+
+    // ====== Countdown & Lid animation ======
+    const lid = qs('#lid');
+    const countdownEl = qs('#countdown');
+    const countNum = qs('#countNum');
+
+    function startCountdown(sec=3){
+      return new Promise((resolve)=>{
+        let n=sec;
+        countNum.textContent = n;
+        countdownEl.classList.add('show');
+        const t = setInterval(()=>{
+          n--; if(n<=0){ clearInterval(t); countdownEl.classList.remove('show'); resolve(); }
+          else { countNum.textContent = n; }
+        }, 1000);
+      });
+    }
+
+    function openLid(){ lid.classList.add('open'); }
+    function closeLid(){ lid.classList.remove('open'); }
+
+    // ====== Confetti ======
+    const confettiCanvas = qs('#confetti');
+    const ctx = confettiCanvas.getContext('2d');
+    let confettiTimer = null;
+
+    function resizeConfetti(){ confettiCanvas.width = window.innerWidth; confettiCanvas.height = window.innerHeight; }
+    window.addEventListener('resize', resizeConfetti); resizeConfetti();
+
+    function launchConfetti(){
+      const W=confettiCanvas.width, H=confettiCanvas.height;
+      const pieces = Array.from({length:180},()=>({
+        x: Math.random()*W,
+        y: -20 - Math.random()*H*0.3,
+        r: Math.random()*6+4,
+        c: `hsl(${Math.random()*360},90%,60%)`,
+        a: Math.random()*Math.PI,
+        v: Math.random()*2+2,
+        s: Math.random()*0.02+0.01
+      }));
+      cancelAnimationFrame(confettiTimer);
+      (function tick(){
+        ctx.clearRect(0,0,W,H);
+        pieces.forEach(p=>{
+          p.y += p.v; p.a += p.s; p.x += Math.sin(p.a)*1.2;
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.a);
+          ctx.fillStyle = p.c;
+          ctx.fillRect(-p.r/2,-p.r/2,p.r,p.r*1.6);
+          ctx.restore();
+        });
+        confettiTimer = requestAnimationFrame(tick);
+      })();
+    }
+
+    function stopConfetti(){ cancelAnimationFrame(confettiTimer); ctx.clearRect(0,0,confettiCanvas.width, confettiCanvas.height); }
+
+    // ====== Winner selection ======
+    function pickWinner(){
+      if (state.luckyQueue.length>0){
+        const forced = state.luckyQueue.shift();
+        persist();
+        return forced;
+      }
+      if (state.pool.length===0) return null;
+      const i = Math.floor(Math.random()*state.pool.length);
+      return state.pool[i];
+    }
+
+    function recordWinner(name){
+      const item = { name, time: new Date().toISOString() };
+      state.winners.push(item); persist();
+      // rebuild pool
+      refreshPool();
+    }
+
+    function showWinner(name){
+      qs('#winnerName').textContent = name;
+      openModal('#winnerModal');
+      // Sounds
+      stopDrum();
+      playPop().then(()=>{ playClap(); });
+      // Confetti
+      launchConfetti();
+    }
+
+    function closeWinnerModal(){
+      closeModal('#winnerModal');
+      stopConfetti();
+      stopClap();
+      // Return lid
+      closeLid();
+    }
+
+    // ====== Lucky Ones modal logic ======
+    function renderLuckyList(filter=''){
+      const list = qs('#luckyList');
+      list.innerHTML='';
+      const f = filter.trim().toLowerCase();
+      const eligible = state.pool.filter(n => !state.luckyQueue.includes(n));
+      eligible.filter(n=> n.toLowerCase().includes(f)).slice(0,200).forEach(name=>{
+        const row = document.createElement('div'); row.className='list-item';
+        row.innerHTML = `<span>${name}</span>`;
+        const btn = document.createElement('button'); btn.textContent='Add';
+        btn.onclick = ()=>{
+          if (state.luckyQueue.length>=3) return alert('You can select up to 3.');
+          state.luckyQueue.push(name); renderLuckySelected(); persist(); renderLuckyList(qs('#luckySearch').value);
+        };
+        row.appendChild(btn);
+        list.appendChild(row);
+      });
+    }
+
+    function renderLuckySelected(){
+      const box = qs('#luckySelected'); box.innerHTML='';
+      state.luckyQueue.forEach((name,i)=>{
+        const row = document.createElement('div'); row.className='list-item';
+        row.innerHTML = `<strong>${i+1}.</strong> <span>${name}</span>`;
+        const btn = document.createElement('button'); btn.textContent='Remove';
+        btn.onclick = ()=>{ state.luckyQueue.splice(i,1); renderLuckySelected(); persist(); renderLuckyList(qs('#luckySearch').value); };
+        row.appendChild(btn);
+        box.appendChild(row);
+      });
+      if (state.luckyQueue.length===0){ box.innerHTML='<div style="opacity:.8; padding:6px 2px;">No selection yet.</div>'; }
+    }
+
+    // ====== Past winners modal logic ======
+    function renderWinners(){
+      const box = qs('#winnersList'); box.innerHTML='';
+      if (state.winners.length===0){ box.innerHTML='<div style="opacity:.8; padding:6px 2px;">No winners yet.</div>'; return; }
+      state.winners.forEach((w,i)=>{
+        const row = document.createElement('div'); row.className='winner-row';
+        const time = new Date(w.time).toLocaleString();
+        row.innerHTML = `<strong>${i+1}.</strong> <div>${w.name}</div> <div style="margin-left:auto; opacity:.7;">${time}</div>`;
+        box.appendChild(row);
+      });
+    }
+
+    function exportWinnersCSV(){
+      const rows = [['#','Name','Time']].concat(state.winners.map((w,i)=>[i+1, w.name, w.time]));
+      const csv = rows.map(r=> r.map(v=> '"'+String(v).replaceAll('"','""')+'"').join(',')).join('\n');
+      const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href=url; a.download='past_winners.csv'; a.click(); URL.revokeObjectURL(url);
+    }
+
+    // ====== Main draw flow ======
+    async function startDraw(){
+      if (state.drawing) return; if (state.pool.length===0 && state.luckyQueue.length===0){ alert('No eligible participants. Load CSV or reset.'); return; }
+      state.drawing = true;
+      openLid();
+      startShuffle();
+      await playDrum();
+      await startCountdown(3);
+      stopShuffle();
+      const winner = pickWinner();
+      if (!winner){ state.drawing=false; closeLid(); return; }
+      recordWinner(winner);
+      showWinner(winner);
+      state.drawing = false;
+      renderPool();
+    }
+
+    // ====== Reset ======
+    function resetDraw(){
+      if (!confirm('Reset will clear all past winners and reload participants. Proceed?')) return;
+      state.winners = []; persist();
+      refreshPool();
+      fetchParticipants();
+    }
+
+    // ====== Event wiring ======
+    function wire(){
+      qs('#btnDrawer').addEventListener('click', ()=> drawer.classList.toggle('open'));
+      document.addEventListener('keydown', (e)=>{ if (e.key==='Escape') { closeDrawer(); qsa('.modal.show').forEach(m=>m.classList.remove('show')); } });
+
+      qs('#btnStart').addEventListener('click', startDraw);
+      qs('#btnReset').addEventListener('click', resetDraw);
+
+      qs('#btnLoadCsv').addEventListener('click', ()=>{ state.csvUrl = qs('#csvUrl').value.trim(); persist(); fetchParticipants(); });
+      qs('#autoRefreshToggle').addEventListener('change', (e)=> setAutoRefresh(e.target.checked));
+      qs('#soundToggle').addEventListener('change', (e)=>{ state.soundEnabled = e.target.checked; persist(); if(state.soundEnabled) primeSound(); });
+
+      // Lucky Ones
+      qs('#btnLuckyOnes').addEventListener('click', ()=>{ openModal('#luckyModal'); renderLuckyList(''); renderLuckySelected(); qs('#luckySearch').value=''; });
+      qs('#closeLucky').addEventListener('click', ()=> closeModal('#luckyModal'));
+      qs('#saveLucky').addEventListener('click', ()=> closeModal('#luckyModal'));
+      qs('#luckySearch').addEventListener('input', (e)=> renderLuckyList(e.target.value));
+
+      // Past Winners
+      qs('#btnPastWinners').addEventListener('click', ()=>{ renderWinners(); openModal('#winnersModal'); });
+      qs('#closeWinners').addEventListener('click', ()=> closeModal('#winnersModal'));
+      qs('#btnExportWinners').addEventListener('click', exportWinnersCSV);
+      qs('#exportCsv2').addEventListener('click', exportWinnersCSV);
+
+      qs('#btnClearAll').addEventListener('click', resetDraw);
+
+      // Winner modal
+      qs('#btnCloseWinner').addEventListener('click', closeWinnerModal);
+      qs('#closeWinner').addEventListener('click', closeWinnerModal);
+
+      // Prime audio on first user gesture
+      ['click','touchstart'].forEach(ev=> document.addEventListener(ev, ()=> primeSound(), {once:true}));
+
+      // Periodic subtle shuffle to keep lively
+      setInterval(()=>{ if(!state.drawing) randomizeEntryPositions(false); }, 4000);
+    }
+
+    // ====== Bootstrap ======
+    (function init(){
+      initAudio();
+      loadPersisted();
+      if (state.csvUrl) fetchParticipants();
+      setAutoRefresh(state.autoRefresh);
+      // If no CSV yet, show a few placeholder entries so the UI looks alive
+      if (!state.csvUrl){
+        state.participants = [
+          'Participant 01','Participant 02','Participant 03','Participant 04','Participant 05','Participant 06','Participant 07','Participant 08','Participant 09','Participant 10','Participant 11','Participant 12'
+        ];
+        refreshPool();
+      }
+      wire();
+      alignLogo();
+    })();
+  </script>
+  <!-- Papa Parse CDN (required for CSV) -->
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+</body>
+</html>
